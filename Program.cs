@@ -12,7 +12,7 @@ namespace ListaPdf
     public class List_pdff
     {
         static List<string> lista = new List<string>();
-        static string name_list = "Documento sem título", edit_text = " ";
+        static string name_list = "Documento", edit_text = string.Empty, new_title = string.Empty;
         static int edit_position = 0;
 
         static void Main(string[] args)
@@ -24,14 +24,19 @@ namespace ListaPdf
         {
             Console.Clear();
 
-            string elements;
+            string elements, title;
             int cont;
 
             Console.WriteLine("NETLIST CREATE");
             Console.WriteLine("--------------\n- Para ir ao próximo elemento pressione a tecla ENTER.\n- Para encerrar a criação da lista, editar os elementos adicionados ou salvar,\npressione a tecla ENTER em um novo elemento vazio.");
             Console.Write("--------------\nQual será o título da lista: ");
-            name_list = Console.ReadLine();
-            lista.Add(name_list + "\n\n");
+            title = Console.ReadLine();
+            lista.Add(title + "\n\n");
+            
+            if (title != string.Empty) 
+            {
+                name_list = title;
+            }
 
             for (cont = 1; cont >= 0; cont++)
             {
@@ -56,14 +61,14 @@ namespace ListaPdf
         {
             Console.Clear();
 
-            int opcao = 0;
+            int option = 0;
 
             Console.WriteLine("\nSua lista: ");
             Console.WriteLine("--------------------");
 
-            foreach (string elementos in lista)
+            foreach (string e in lista)
             {
-                Console.WriteLine(elementos);
+                Console.WriteLine(e);
             }
 
             try
@@ -71,7 +76,7 @@ namespace ListaPdf
                 Console.WriteLine("--------------------");
                 Console.WriteLine("\nSelecione uma opção: \n1 - Salvar Lista\n2 - Editar lista\n3 - Sair");
                 Console.Write("\n> ");
-                opcao = int.Parse(Console.ReadLine());
+                option = int.Parse(Console.ReadLine());
             }
 
             catch (SystemException)
@@ -81,7 +86,7 @@ namespace ListaPdf
                 consultar_lista();
             }
 
-            switch (opcao)
+            switch (option)
             {
                 case 1:
                     salvar_lista();
@@ -107,14 +112,14 @@ namespace ListaPdf
 
         static void editar_lista()
         {
-            Console.Clear();
+            Console.Clear();       
 
             Console.WriteLine("\nSua lista: ");
             Console.WriteLine("--------------------");
 
-            foreach (string elementos in lista)
+            foreach (string p in lista)
             {
-                Console.WriteLine(elementos);
+                Console.WriteLine(p);
             }
 
             Console.WriteLine("--------------------");
@@ -122,9 +127,9 @@ namespace ListaPdf
             verificar_posicao_existe_editar_informacoes();
 
             Console.WriteLine("\nSua lista: ");
-            Console.WriteLine("--------------------");
+            Console.WriteLine("--------------------");        
 
-            if (edit_position == 0)
+            if (edit_position == 0 && edit_text != string.Empty)
             {
                 lista[edit_position] = edit_text + "\n\n";
                 name_list = edit_text;
@@ -135,9 +140,9 @@ namespace ListaPdf
                 lista[edit_position] = edit_position + ". " + edit_text;
             }
 
-            foreach (string p in lista)
+            foreach (string f in lista)
             {
-                Console.WriteLine(p);
+                Console.WriteLine(f);
             }
 
             Console.WriteLine("--------------------");
@@ -184,13 +189,13 @@ namespace ListaPdf
         static void salvar_lista()
         {
             Console.Clear();
-            int opcao_formato = 0;
+            int format = 0;
 
             try
             {
-                Console.WriteLine("\nSelecione o formato do arquivo:\n\n1 - Arquivo de texto(.txt)\n2 - PDF");
+                Console.WriteLine($"\n\nSelecione o formato do arquivo:\n\n1 - Arquivo de texto(.txt)\n2 - PDF");
                 Console.Write("\n> ");
-                opcao_formato = int.Parse(Console.ReadLine());
+                format = int.Parse(Console.ReadLine());
             }
 
             catch (SystemException)
@@ -200,7 +205,7 @@ namespace ListaPdf
                 salvar_lista();
             }
 
-            switch (opcao_formato)
+            switch (format)
             {
                 case 1: salvar_txt(); break;
                 case 2: salvar_pdf(); break;
@@ -216,6 +221,7 @@ namespace ListaPdf
         {
             Console.Clear();
             string filePath = string.Empty, endereco_salvar_arquivo = string.Empty;
+            string file_name_txt = name_list;
 
             try
             {
@@ -228,7 +234,7 @@ namespace ListaPdf
                     Directory.CreateDirectory(folderPath);
                 }
 
-                filePath = Path.Combine(folderPath, name_list);
+                filePath = Path.Combine(@$"{folderPath}\{file_name_txt}.txt");
 
                 File.WriteAllLines(filePath, lista);
             }
@@ -237,7 +243,7 @@ namespace ListaPdf
             {
                 Console.WriteLine("\nAlgo de errado aconteceu.\nPressione qualquer tecla para voltar.");
                 Console.ReadKey();
-                salvar_lista();
+                consultar_lista();
             }
 
             Console.WriteLine($"\nLista salva com sucesso em: {filePath}");
@@ -249,6 +255,8 @@ namespace ListaPdf
         {
             Console.Clear();
 
+            string file_name_pdf = name_list;
+
             string filePath2 = string.Empty;
             string folderName2 = "Arquivos PDF";
             string rootDirectory2 = AppDomain.CurrentDomain.BaseDirectory;
@@ -259,9 +267,9 @@ namespace ListaPdf
                 Directory.CreateDirectory(folderPath2);
             }
 
-            filePath2 = Path.Combine(folderPath2, name_list);
+            filePath2 = Path.Combine(folderPath2);
 
-            using var document = new Document(new PdfDocument(new PdfWriter($"{filePath2}.pdf")));
+            using var document = new Document(new PdfDocument(new PdfWriter(@$"{filePath2}\{file_name_pdf}.pdf")));
 
             foreach (string elementos in lista)
             {
