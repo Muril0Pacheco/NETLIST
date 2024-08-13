@@ -220,7 +220,8 @@ namespace ListaPdf
         static void salvar_txt()
         {
             Console.Clear();
-            string filePath = string.Empty, endereco_salvar_arquivo = string.Empty;
+
+            string filePath = string.Empty;
             string file_name_txt = name_list;
 
             try
@@ -256,27 +257,37 @@ namespace ListaPdf
             Console.Clear();
 
             string file_name_pdf = name_list;
-
             string filePath2 = string.Empty;
-            string folderName2 = "Arquivos PDF";
-            string rootDirectory2 = AppDomain.CurrentDomain.BaseDirectory;
-            string folderPath2 = Path.Combine(rootDirectory2, folderName2);
 
-            if (!Directory.Exists(folderPath2))
+            try
             {
-                Directory.CreateDirectory(folderPath2);
+                string folderName2 = "Arquivos PDF";
+                string rootDirectory2 = AppDomain.CurrentDomain.BaseDirectory;
+                string folderPath2 = Path.Combine(rootDirectory2, folderName2);
+
+                if (!Directory.Exists(folderPath2))
+                {
+                    Directory.CreateDirectory(folderPath2);
+                }
+
+                filePath2 = Path.Combine(@$"{folderPath2}\{file_name_pdf}");
+
+                using var document = new Document(new PdfDocument(new PdfWriter(@$"{filePath2}.pdf")));
+
+                foreach (string elementos in lista)
+                {
+                    document.Add(new Paragraph(elementos));
+                }
+
+                document.Close();
             }
 
-            filePath2 = Path.Combine(folderPath2);
-
-            using var document = new Document(new PdfDocument(new PdfWriter(@$"{filePath2}\{file_name_pdf}.pdf")));
-
-            foreach (string elementos in lista)
+            catch (SystemException)
             {
-                document.Add(new Paragraph(elementos));
+                Console.WriteLine("\nAlgo de errado aconteceu.\nPressione qualquer tecla para voltar.");
+                Console.ReadKey();
+                consultar_lista();
             }
-
-            document.Close();
 
             Console.WriteLine($"\nLista salva com sucesso em: {filePath2}");
             opcao_fazer_nova_lista();
