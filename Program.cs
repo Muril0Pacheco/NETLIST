@@ -12,7 +12,7 @@ namespace ListaPdf
     public class List_pdff
     {
         static List<string> lista = new List<string>();
-        static string name_list = "Documento", edit_text = string.Empty, new_title = string.Empty;
+        static string name_list = "Documento", edit_text = string.Empty, new_title = string.Empty, filePath2 = string.Empty, filePath = string.Empty;
         static int edit_position = 0;
 
         static void Main(string[] args)
@@ -221,7 +221,6 @@ namespace ListaPdf
         {
             Console.Clear();
 
-            string filePath = string.Empty;
             string file_name_txt = name_list;
 
             try
@@ -235,7 +234,8 @@ namespace ListaPdf
                     Directory.CreateDirectory(folderPath);
                 }
 
-                filePath = Path.Combine(@$"{folderPath}\{file_name_txt}.txt");
+                filePath = verificar_arquivo_txt_existente(folderPath, file_name_txt);
+                filePath = Path.Combine($"{filePath}.txt");
 
                 File.WriteAllLines(filePath, lista);
             }
@@ -256,8 +256,7 @@ namespace ListaPdf
         {
             Console.Clear();
 
-            string file_name_pdf = name_list;
-            string filePath2 = string.Empty;
+            string file_name_pdf = name_list;           
 
             try
             {
@@ -269,10 +268,10 @@ namespace ListaPdf
                 {
                     Directory.CreateDirectory(folderPath2);
                 }
+              
+                filePath2 = verificar_arquivo_pdf_existente(file_name_pdf, folderPath2);
 
-                filePath2 = Path.Combine(@$"{folderPath2}\{file_name_pdf}");
-
-                using var document = new Document(new PdfDocument(new PdfWriter(@$"{filePath2}.pdf")));
+                using var document = new Document(new PdfDocument(new PdfWriter($"{filePath2}.pdf")));
 
                 foreach (string elementos in lista)
                 {
@@ -293,15 +292,43 @@ namespace ListaPdf
             opcao_fazer_nova_lista();
         }
 
+        static string verificar_arquivo_pdf_existente(string file_name_pdf, string folderPath2) 
+        {
+            int cont = 1;
+            string originalFilePath_pdf = Path.Combine(folderPath2, file_name_pdf);
+            string newFilePath_pdf = originalFilePath_pdf;
+
+            while (File.Exists($"{newFilePath_pdf}.pdf"))
+            {
+                newFilePath_pdf = Path.Combine(folderPath2, $"{file_name_pdf}({cont++})");
+            }
+
+            return newFilePath_pdf;
+        }
+
+        static string verificar_arquivo_txt_existente(string folderPath, string file_name_txt) 
+        {
+            int cont = 1;
+            string originalFilePath_txt = Path.Combine(folderPath, file_name_txt);
+            string newFilePath_txt = originalFilePath_txt;
+
+            while (File.Exists($"{newFilePath_txt}.txt"))
+            {
+                newFilePath_txt = Path.Combine(folderPath, $"{file_name_txt}({cont++})");
+            }
+
+            return newFilePath_txt;
+        }
+
         static void opcao_fazer_nova_lista() 
         {
-            int opcao_final = 0;
+            int option = 0;
 
             try
             {
                 Console.WriteLine("\nSelecione uma opção:\n\n1 - Sair\n2 - Fazer nova lista");
                 Console.Write("\n> ");
-                opcao_final = int.Parse(Console.ReadLine());
+                option = int.Parse(Console.ReadLine());
             }
            
 
@@ -312,7 +339,7 @@ namespace ListaPdf
                 opcao_fazer_nova_lista();
             }
 
-            switch (opcao_final)
+            switch (option)
             {
                 case 1:
                     Console.WriteLine("Aplicação encerrada.");

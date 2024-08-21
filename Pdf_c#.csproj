@@ -11,6 +11,7 @@
   <ItemGroup>
     <PackageReference Include="itext" Version="8.0.5" />
     <PackageReference Include="itext.bouncy-castle-adapter" Version="8.0.5" />
+    <PackageReference Include="NuGet.Frameworks" Version="6.11.0" />
   </ItemGroup>
 
 </Project>
