@@ -2,9 +2,13 @@
 using System.Collections.Generic;
 using System.Collections.Generic;
 using System.IO;
+using iText.IO.Font.Constants;
+using iText.Kernel.Colors;
+using iText.Kernel.Font;
 using iText.Kernel.Pdf;
 using iText.Layout;
 using iText.Layout.Element;
+using iText.Layout.Font;
 
 
 namespace ListaPdf
@@ -31,9 +35,10 @@ namespace ListaPdf
             Console.WriteLine("--------------\n- Para ir ao próximo elemento pressione a tecla ENTER.\n- Para encerrar a criação da lista, editar os elementos adicionados ou salvar,\npressione a tecla ENTER em um novo elemento vazio.");
             Console.Write("--------------\nQual será o título da lista: ");
             title = Console.ReadLine();
-            lista.Add(title + "\n\n");
-            
-            if (title != string.Empty) 
+
+            lista.Add($"{title}\n\n");
+
+            if (title != string.Empty)
             {
                 name_list = title;
             }
@@ -90,29 +95,30 @@ namespace ListaPdf
             {
                 case 1:
                     salvar_lista();
-                break;
+                    break;
 
                 case 2:
                     editar_lista();
-                break;
+                    break;
 
                 case 3:
                     Console.Clear();
                     Console.WriteLine("\nAplicação encerrada.\n");
                     System.Environment.Exit(0);
-                break;
+                    break;
 
                 default:
                     Console.WriteLine("Digite uma opção válida.\nPressione qualquer tecla para continuar.");
                     Console.ReadKey();
                     consultar_lista();
-                break;
+                    break;
             }
         }
 
         static void editar_lista()
+
         {
-            Console.Clear();       
+            Console.Clear();
 
             Console.WriteLine("\nSua lista: ");
             Console.WriteLine("--------------------");
@@ -127,7 +133,7 @@ namespace ListaPdf
             verificar_posicao_existe_editar_informacoes();
 
             Console.WriteLine("\nSua lista: ");
-            Console.WriteLine("--------------------");        
+            Console.WriteLine("--------------------");
 
             if (edit_position == 0 && edit_text != string.Empty)
             {
@@ -163,7 +169,7 @@ namespace ListaPdf
             catch (SystemException)
             {
                 Console.WriteLine("\nDigite uma opção válida.\nPressione qualquer tecla para continuar.");
-                Console.ReadKey();            
+                Console.ReadKey();
                 consultar_lista();
             }
 
@@ -213,7 +219,7 @@ namespace ListaPdf
                     Console.WriteLine("\nDigite uma opção válida.\nPressione qualquer tecla para continuar.");
                     Console.ReadKey();
                     salvar_lista();
-                break;
+                    break;
             }
         }
 
@@ -221,12 +227,12 @@ namespace ListaPdf
         {
             Console.Clear();
 
-            string file_name_txt = name_list;
+            string file_name_txt = $"{name_list}\n\n";
 
             try
             {
                 string folderName = "Arquivos de texto";
-                string rootDirectory = AppDomain.CurrentDomain.BaseDirectory;           
+                string rootDirectory = AppDomain.CurrentDomain.BaseDirectory;
                 string folderPath = Path.Combine(rootDirectory, folderName);
 
                 if (!Directory.Exists(folderPath))
@@ -248,15 +254,28 @@ namespace ListaPdf
             }
 
             Console.WriteLine($"\nLista salva com sucesso em: {filePath}");
-            
-            opcao_fazer_nova_lista();          
+
+            opcao_fazer_nova_lista();
         }
 
         static void salvar_pdf()
         {
             Console.Clear();
 
-            string file_name_pdf = name_list;           
+            string file_name_pdf = name_list;
+
+            lista.RemoveAt(0);//limpa o titulo adicionado anteriormente, ja que vamos adicionar um novo titulo personalizado
+
+            PdfFont title_font = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
+            PdfFont text_font = PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
+
+            Style style_title = new Style()
+            .SetFont(title_font)
+            .SetFontSize(16);
+
+            Style style_text = new Style()
+            .SetFont(text_font)
+            .SetFontSize(12);
 
             try
             {
@@ -268,14 +287,17 @@ namespace ListaPdf
                 {
                     Directory.CreateDirectory(folderPath2);
                 }
-              
+
                 filePath2 = verificar_arquivo_pdf_existente(file_name_pdf, folderPath2);
 
                 using var document = new Document(new PdfDocument(new PdfWriter($"{filePath2}.pdf")));
 
+                Paragraph title = new Paragraph().Add(new Text(file_name_pdf).AddStyle(style_title));
+                document.Add(title);
+
                 foreach (string elementos in lista)
                 {
-                    document.Add(new Paragraph(elementos));
+                    document.Add(new Paragraph().Add(new Text(elementos).AddStyle(style_text)));
                 }
 
                 document.Close();
@@ -292,7 +314,7 @@ namespace ListaPdf
             opcao_fazer_nova_lista();
         }
 
-        static string verificar_arquivo_pdf_existente(string file_name_pdf, string folderPath2) 
+        static string verificar_arquivo_pdf_existente(string file_name_pdf, string folderPath2)
         {
             int cont = 1;
             string originalFilePath_pdf = Path.Combine(folderPath2, file_name_pdf);
@@ -306,7 +328,7 @@ namespace ListaPdf
             return newFilePath_pdf;
         }
 
-        static string verificar_arquivo_txt_existente(string folderPath, string file_name_txt) 
+        static string verificar_arquivo_txt_existente(string folderPath, string file_name_txt)
         {
             int cont = 1;
             string originalFilePath_txt = Path.Combine(folderPath, file_name_txt);
@@ -320,7 +342,7 @@ namespace ListaPdf
             return newFilePath_txt;
         }
 
-        static void opcao_fazer_nova_lista() 
+        static void opcao_fazer_nova_lista()
         {
             int option = 0;
 
@@ -330,9 +352,9 @@ namespace ListaPdf
                 Console.Write("\n> ");
                 option = int.Parse(Console.ReadLine());
             }
-           
 
-            catch (SystemException) 
+
+            catch (SystemException)
             {
                 Console.WriteLine("\nDigite uma opção válida.\nPressione qualquer tecla para continuar.");
                 Console.ReadKey();
@@ -344,18 +366,18 @@ namespace ListaPdf
                 case 1:
                     Console.WriteLine("Aplicação encerrada.");
                     System.Environment.Exit(0);
-                break;
+                    break;
 
                 case 2:
                     lista.Clear();
-                    criacao_lista();             
-                break;
+                    criacao_lista();
+                    break;
 
                 default:
                     Console.WriteLine("\nDigite uma opção válida.\nPressione qualquer tecla para continuar.");
                     Console.ReadKey();
                     salvar_lista();
-                break;
+                    break;
             }
         }
     }
