@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Globalization;
+using System.Threading;
+using System.Text;
 using System.Collections.Generic;
 using System.Collections.Generic;
 using System.IO;
+
 using iText.IO.Font.Constants;
 using iText.Kernel.Colors;
 using iText.Kernel.Font;
@@ -21,6 +25,9 @@ namespace ListaPdf
 
         static void Main(string[] args)
         {
+            Console.OutputEncoding = Encoding.UTF8;
+            Thread.CurrentThread.CurrentCulture = CultureInfo.CurrentCulture;
+
             criacao_lista();
         }
 
@@ -28,11 +35,11 @@ namespace ListaPdf
         {
             Console.Clear();
 
-            string elements, title;
-            int cont;
+            int cont = 1;
+            string title;
 
             Console.WriteLine("NETLIST CREATE");
-            Console.WriteLine("--------------\n- Para ir ao próximo elemento pressione a tecla ENTER.\n- Para encerrar a criação da lista, editar os elementos adicionados ou salvar,\npressione a tecla ENTER em um novo elemento vazio.");
+            Console.WriteLine("--------------\n- Para ir ao próximo elemento pressione a tecla ENTER.\n- Para encerrar a criação da lista, editar os elementos adicionados ou salvar, pressione a tecla Enter em um novo elemento vazio.");
             Console.Write("--------------\nQual será o título da lista: ");
             title = Console.ReadLine();
 
@@ -43,23 +50,21 @@ namespace ListaPdf
                 name_list = title;
             }
 
-            for (cont = 1; cont >= 0; cont++)
+            do
             {
-                Console.Write($"\nDigite o {cont}° elemento da lista: ");
-                elements = Console.ReadLine();
+                Console.Write($"\nDigite o {cont}° elemento da lista (ENTER para finalizar): ");
+                string elements = Console.ReadLine();
 
-                if (elements == "")
+                if (string.IsNullOrEmpty(elements))
                 {
-                    Console.Clear();
-                    cont = -999;
-                    consultar_lista();
+                    break; 
                 }
 
-                else
-                {
-                    lista.Add($"{cont}. {elements}");
-                }
-            }
+                lista.Add($"{cont}. {elements}");
+                cont++;
+            } while (true);
+
+            consultar_lista();
         }
 
         static void consultar_lista()
